@@ -84,7 +84,6 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  from game import Directions
   start_position = problem.getStartState()
   if problem.isGoalState(start_position):
       return []
@@ -134,7 +133,42 @@ def breadthFirstSearch(problem):
   [2nd Edition: p 73, 3rd Edition: p 82]
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  start_position = problem.getStartState()
+  if problem.isGoalState(start_position):
+      return []
+
+  explored = set()
+  explored.add(start_position)
+  frontier = util.Queue()
+  f_set = set()
+
+  for path_node in problem.getSuccessors(start_position):
+      frontier.push((path_node, None)) # tuple: node and parent
+      f_set.add(path_node[0]) # just the position
+
+  while frontier.isEmpty() != True:
+      current_tuple = frontier.pop()
+      current_node = current_tuple[0]
+      f_set.remove(current_node[0])
+      current_position = current_node[0]
+
+      if problem.isGoalState(current_position):
+          directions = []
+          # unwind the path into a direction list
+          path_tuple = current_tuple
+          while path_tuple != None:
+              directions.insert(0,path_tuple[0][1]) # get the direction for this node
+              path_tuple = path_tuple[1]
+          return directions
+
+      explored.add(current_position)
+      successors = [node for node in problem.getSuccessors(current_position) if node[0] not in explored and node[0] not in f_set]
+      if len(successors) > 0:
+          for path_node in successors:
+              frontier.push((path_node, current_tuple))
+              f_set.add(path_node[0]) # just the position
+
+  return []
 
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
