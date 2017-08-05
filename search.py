@@ -170,10 +170,54 @@ def breadthFirstSearch(problem):
 
   return []
 
+def listToActions(path_tuple):
+    actions = []
+    # unwind the path into a direction list
+    while path_tuple != None:
+        actions.insert(0,path_tuple[0][1]) # get the direction for this node
+        path_tuple = path_tuple[1]
+    return actions
+
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  start_position = problem.getStartState()
+  if problem.isGoalState(start_position):
+      return []
+
+  explored = set()
+  explored.add(start_position)
+  frontier = util.PriorityQueue()
+  f_set = set()
+
+  for path_node in problem.getSuccessors(start_position):
+      node = (path_node, None)
+      score = problem.getCostOfActions(listToActions(node))
+      frontier.push(node, score) # tuple: node and parent
+      f_set.add(path_node[0]) # just the position
+
+  while frontier.isEmpty() != True:
+      current_tuple = frontier.pop()
+      current_node = current_tuple[0]
+      f_set.remove(current_node[0])
+      current_position = current_node[0]
+
+      if problem.isGoalState(current_position):
+          return listToActions(current_tuple)
+
+      explored.add(current_position)
+      successors = [node for node in problem.getSuccessors(current_position) if node[0] not in explored and node[0] not in f_set]
+      if len(successors) > 0:
+          for path_node in successors:
+              new_tuple = (path_node, current_tuple)
+              score = problem.getCostOfActions(listToActions(new_tuple))
+              frontier.push(new_tuple, score)
+              f_set.add(path_node[0]) # just the position
+
+  return []
+
+
+
 
 def nullHeuristic(state, problem=None):
   """
