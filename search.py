@@ -229,7 +229,42 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  start_position = problem.getStartState()
+  if problem.isGoalState(start_position):
+      return []
+
+  explored = set()
+  explored.add(start_position)
+  frontier = util.PriorityQueue()
+  f_set = set()
+
+  for path_node in problem.getSuccessors(start_position):
+      node = (path_node, None)
+      path_position = path_node[0]
+      score = problem.getCostOfActions(listToActions(node)) + heuristic(path_position, problem)
+      frontier.push(node, score) # tuple: node and parent
+      f_set.add(path_position) # just the position
+
+  while frontier.isEmpty() != True:
+      current_tuple = frontier.pop()
+      current_node = current_tuple[0]
+      f_set.remove(current_node[0])
+      current_position = current_node[0]
+
+      if problem.isGoalState(current_position):
+          return listToActions(current_tuple)
+
+      explored.add(current_position)
+      successors = [node for node in problem.getSuccessors(current_position) if node[0] not in explored and node[0] not in f_set]
+      if len(successors) > 0:
+          for path_node in successors:
+              new_tuple = (path_node, current_tuple)
+              path_position = path_node[0]
+              score = problem.getCostOfActions(listToActions(new_tuple)) + heuristic(path_position, problem)
+              frontier.push(new_tuple, score)
+              f_set.add(path_position) # just the position
+
+  return []
 
 
 # Abbreviations
